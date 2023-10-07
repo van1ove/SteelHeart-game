@@ -1,10 +1,13 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace AI
 {
     public class DroneState_Attack : IState
     {
+        public event Action OnPerformAttack;
+        
         private NavMeshAgent _navMeshAgent;
         private DroneAttackProperties _attackProperties;
 
@@ -53,6 +56,8 @@ namespace AI
             if (Physics.Raycast(ray, out RaycastHit hit, _maxDistance, Physics.AllLayers, QueryTriggerInteraction.Ignore))
                 if (hit.collider.TryGetComponent(out Player player))
                     Shoot(ray.direction);
+            
+            OnPerformAttack?.Invoke();
         }
 
         public void Tick()

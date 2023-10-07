@@ -7,7 +7,7 @@ namespace AI
 {
     public class DroneBehavior : RobotBrain
     {
-        [HideInInspector] public UnityEvent<int> OnAttack;
+        [HideInInspector] public UnityEvent OnAttack;
 
         [SerializeField] private float _destroyDelay;
 
@@ -30,12 +30,13 @@ namespace AI
         private RobotState_Delay _delayState;
         private RobotState_Patrol _patrolState;
         private RobotState_Chase _chaseState;
-        
         private RobotState_Death _deathState;
         
         private DroneState_Attack _attackState;
         private DroneState_Freeze _freezeState;
 
+
+        public bool IsAttacking => _stateMachine.IsInState(_attackState);
         protected override void Awake()
         {
             base.Awake();
@@ -52,6 +53,9 @@ namespace AI
             _deathState = new RobotState_Death(_navMeshAgent, _destroyDelay);
             _attackState = 
                 new DroneState_Attack(_player, _navMeshAgent, _chaseMinDistance, _maxCombatDistance, _attackProperties);
+
+            _attackState.OnPerformAttack += OnAttack.Invoke;
+            
             _freezeState = 
                 new DroneState_Freeze(_navMeshAgent, _attackState, _freezeMinHeight, _freezeDuration);
         }

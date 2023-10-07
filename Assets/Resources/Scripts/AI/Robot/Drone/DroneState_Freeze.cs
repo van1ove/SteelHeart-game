@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace AI
@@ -29,8 +30,8 @@ namespace AI
             _maxHeight = _navMeshAgent.baseOffset;
 
             _endTime = Time.time + _duration;
-
-            _navMeshAgent.baseOffset = _minHeight;
+            
+            //_navMeshAgent.baseOffset = Mathf.Lerp(_navMeshAgent.baseOffset, _minHeight, 0.1f);
             _navMeshAgent.isStopped = true;
         }
 
@@ -45,8 +46,21 @@ namespace AI
         }
 
         public void Tick()
-        { }
+        {
+            // smooth getting up
+            if(Time.time >= _endTime - _duration / 3)
+                _navMeshAgent.baseOffset = ChangeHeight(_navMeshAgent.baseOffset, _maxHeight, 0.05f);
+
+            // smooth getting down
+            else if(Time.time <= _endTime - 2 * _duration / 3)
+                _navMeshAgent.baseOffset = ChangeHeight(_navMeshAgent.baseOffset, _minHeight, 0.05f);
+        }
 
         public bool IsDone() => _endTime <= Time.time;
+
+        private float ChangeHeight(float a, float b, float t)
+        {
+            return Mathf.Lerp(a, b, t);
+        }
     }
 }
